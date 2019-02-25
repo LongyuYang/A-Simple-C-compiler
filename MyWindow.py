@@ -1,12 +1,63 @@
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QTextCursor
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QTableWidgetItem
 # from PyQt5.QtGui import QTextCursor,QTextCharFormat,QColor
 from MainWindow import Ui_MainWindow
 
 from Sematic import SematicAnalysis
 from Mips import Assembler
+
+
+# 语法高亮类
+class Highlighter(QSyntaxHighlighter):
+    def __init__(self, parent):
+        QSyntaxHighlighter.__init__(self, parent)
+        self.parent = parent
+        self.highlightingRules = []
+
+        # 数值类型
+        format = QTextCharFormat()
+        format.setForeground(Qt.darkGreen)
+        format.setFontWeight(QFont.Bold)
+        keywords = ["int", "void", "double"]
+        for word in keywords:
+            pattern = QRegExp('\\b' + word + '\\b')
+            rule = {'pattern': pattern,
+                    'format': format}
+            self.highlightingRules.append(rule)
+
+        # 关键字
+        format_2 = QTextCharFormat()
+        format_2.setForeground(Qt.blue)
+        format_2.setFontWeight(QFont.Bold)
+        # format_2.setFontItalic(True)
+        keywords_2 = ["if", "else", "while", "return"]
+        for word in keywords_2:
+            pattern_2 = QRegExp('\\b' + word + '\\b')
+            rule_2 = {'pattern': pattern_2,
+                      'format': format_2}
+            self.highlightingRules.append(rule_2)
+
+        # 行号
+        format_3 = QTextCharFormat()
+        format_3.setForeground(Qt.red)
+        pattern_3 = QRegExp(r'^[0-9]+\b')
+        self.highlightingRules.append(
+            {
+                'pattern': pattern_3,
+                'format': format_3
+            })
+
+    def highlightBlock(self, text):
+        for rule in self.highlightingRules:
+            expression = rule['pattern']
+            index = expression.indexIn(text)
+            while index >= 0:
+                length = expression.matchedLength()
+                self.setFormat(index, length, rule['format'])
+                index = expression.indexIn(text, index + length)
+        self.setCurrentBlockState(0)
 
 
 class MyWindow(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -25,6 +76,9 @@ class MyWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pushButton_3.clicked.connect(self.semAnalyze)
         self.pushButton_4.clicked.connect(self.generateMIPS)
         self.textEdit_4.textChanged.connect(self.scrollToBottom)
+
+        # 语法高亮
+        highlighter = Highlighter(self.textEdit)
 
     def scrollToBottom(self):
         self.textEdit_4.moveCursor(QTextCursor.End)
