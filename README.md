@@ -4,3 +4,5 @@ This is a Python implemented simple C compiler for Principles of Compiling cours
 ## Requirements ##
 - Python 3.6
 - PyQt 5.11.1
+## Example ##
+![Alt text](https://github.com/ynuy1998/A-Simple-C-compiler/raw/master/ExamplePhoto/compiler.png)
