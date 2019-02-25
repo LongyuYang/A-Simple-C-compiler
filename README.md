@@ -1,1 +1,2 @@
-# A-Simple-C-compiler
+A Simple C compiler
+===================
